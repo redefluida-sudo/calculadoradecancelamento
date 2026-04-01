@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora de Cancelamento</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:#f4f1ec;min-height:100vh;padding:2rem 1rem}
+h1.page-title{text-align:center;font-family:'DM Serif Display',serif;font-size:28px;font-weight:400;color:#1a1a1a;margin-bottom:6px}
+p.page-sub{text-align:center;font-size:13px;color:#888;margin-bottom:32px}
+.wrap{max-width:960px;margin:0 auto}
+.step-header{margin-bottom:20px}
+.step-header p{font-size:11px;font-weight:600;color:#aaa;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px}
+.step-header h2{font-family:'DM Serif Display',serif;font-size:24px;font-weight:400;color:#1a1a1a}
+.options-grid{display:grid;gap:12px;margin-bottom:24px}
+.options-grid.cols2{grid-template-columns:1fr 1fr}
+.options-grid.cols3{grid-template-columns:1fr 1fr 1fr}
+.opt-card{background:#fff;border:1.5px solid #e8e3dc;border-radius:14px;padding:16px 18px;cursor:pointer;transition:border-color .15s,background .15s}
+.opt-card:hover{border-color:#bbb;background:#faf9f7}
+.opt-card.selected{border-color:#1a1a1a;background:#f7f5f2}
+.opt-card p{font-size:13px;font-weight:600;color:#1a1a1a;margin-bottom:4px}
+.opt-card span{font-size:11px;color:#999;line-height:1.4;display:block}
+.check{width:18px;height:18px;border-radius:50%;border:1.5px solid #ddd;display:inline-block;margin-bottom:10px;background:#fff;position:relative}
+.opt-card.selected .check{background:#1a1a1a;border-color:#1a1a1a}
+.opt-card.selected .check::after{content:'';position:absolute;top:3px;left:5px;width:5px;height:8px;border:2px solid #fff;border-top:none;border-left:none;transform:rotate(45deg)}
+.divider{border:none;border-top:1px solid #f0ece6;margin:20px 0}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:12px;color:#888;margin-bottom:6px;font-weight:500;letter-spacing:.03em}
+.field input{width:100%;padding:10px 14px;font-size:14px;font-family:'DM Sans',sans-serif;border:1px solid #e0dbd3;border-radius:10px;background:#faf9f7;color:#1a1a1a;outline:none;transition:border-color .15s}
+.field input:focus{border-color:#aaa;background:#fff}
+.fields-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.row3{display:grid;grid-template-columns:1fr 140px auto;gap:8px;align-items:center;margin-bottom:10px}
+.row3 .field{margin:0}
+.btn-add{background:none;border:1px dashed #ccc;border-radius:8px;padding:8px 14px;font-size:12px;color:#888;cursor:pointer;width:100%;margin-top:4px;font-family:'DM Sans',sans-serif;transition:border-color .15s,color .15s}
+.btn-add:hover{border-color:#888;color:#444}
+.btn-rm{background:none;border:none;color:#ccc;font-size:20px;cursor:pointer;padding:4px 8px;border-radius:6px;line-height:1}
+.btn-rm:hover{color:#c0392b;background:#fff2f2}
+.btn-gerar{width:100%;padding:13px;background:#1a1a1a;color:#fff;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;border:none;border-radius:10px;cursor:pointer;letter-spacing:.04em;transition:opacity .15s;margin-top:20px}
+.btn-gerar:hover{opacity:.82}
+.btn-voltar{background:none;border:1px solid #e0dbd3;border-radius:10px;padding:10px 20px;font-size:13px;color:#888;cursor:pointer;font-family:'DM Sans',sans-serif;margin-bottom:20px;transition:border-color .15s}
+.btn-voltar:hover{border-color:#aaa;color:#444}
+.tags{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+.tag{display:inline-block;font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:3px 10px;border-radius:6px}
+.tag.pagamento{background:#e8f4ff;color:#185fa5}
+.tag.consumo{background:#e8fff5;color:#0f6e56}
+.result-wrap{max-width:520px;margin:0 auto}
+.card-wrap{background:#fff;border-radius:20px;overflow:hidden;border:1px solid #e8e3dc}
+.card-header{background:#1a1a1a;padding:24px 28px 20px;display:flex;justify-content:space-between;align-items:flex-end}
+.card-header-left p{font-size:10px;color:#888;letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px}
+.card-header-left h1{font-family:'DM Serif Display',serif;font-size:24px;color:#fff;font-weight:400;line-height:1.2}
+.card-header-right{text-align:right}
+.card-header-right p{font-size:10px;color:#888;letter-spacing:.08em;text-transform:uppercase;margin-bottom:3px}
+.card-header-right span{font-size:12px;color:#ccc}
+.card-body{padding:22px 28px}
+.sec-title{font-size:9px;font-weight:600;color:#aaa;letter-spacing:.14em;text-transform:uppercase;margin-bottom:10px}
+.mini-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.mini-card{background:#f7f5f2;border-radius:12px;padding:12px 14px}
+.mini-card.highlight{background:#fff8ed;border:1px solid #f0d9a8}
+.mini-card.blue{background:#f0f6ff;border:1px solid #b5d4f4}
+.mini-card.span2{grid-column:span 2}
+.mini-card .mc-label{font-size:10px;color:#999;margin-bottom:4px}
+.mini-card .mc-value{font-size:16px;font-weight:600;color:#1a1a1a;letter-spacing:-.02em}
+.mini-card.highlight .mc-value{color:#b07d2a}
+.mini-card.blue .mc-value{color:#185fa5}
+.hr{border:none;border-top:1px solid #f0ece6;margin:12px 0}
+.rb{border-radius:12px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.rb.red{background:#fff2f2;border:1px solid #f5c6c6}
+.rb.green{background:#f0faf5;border:1px solid #a8dcbf}
+.rb.amber{background:#fff8ed;border:1px solid #f0d9a8}
+.rb.dark{background:#1a1a1a;border:1px solid #1a1a1a}
+.rb-left p{font-size:9px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;margin-bottom:3px}
+.rb.red .rb-left p{color:#c0716f}
+.rb.green .rb-left p{color:#2e8c5c}
+.rb.amber .rb-left p{color:#b07d2a}
+.rb.dark .rb-left p{color:#aaa}
+.rb-left span{font-size:11px}
+.rb.red .rb-left span{color:#a05252}
+.rb.green .rb-left span{color:#3a7a5a}
+.rb.amber .rb-left span{color:#b07d2a}
+.rb.dark .rb-left span{color:#888}
+.rb-right{font-size:22px;font-weight:600;letter-spacing:-.02em}
+.rb.red .rb-right{color:#c0392b}
+.rb.green .rb-right{color:#1a6e41}
+.rb.amber .rb-right{color:#b07d2a}
+.rb.dark .rb-right{color:#5DCAA5}
+.card-footer{background:#f7f5f2;border-top:1px solid #e8e3dc;padding:10px 28px;font-size:10px;color:#bbb}
+.itens-lista{margin-bottom:12px}
+.item-row{display:flex;justify-content:space-between;font-size:11px;padding:5px 0;border-bottom:1px solid #f7f5f2}
+.item-nome{color:#888}
+.item-val{font-weight:600}
+.item-val.usado{color:#c0392b}
+.item-val.disp{color:#1a6e41}
+.section{display:none}
+.section.active{display:block}
+.bloco-titulo{font-size:13px;font-weight:600;color:#1a1a1a;margin-bottom:12px}
+.consumed-toggle{display:flex;gap:8px;align-items:center}
+.consumed-toggle label{font-size:12px;color:#888;cursor:pointer}
+.consumed-toggle input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:#1a1a1a}
+@media(max-width:640px){.options-grid.cols2,.options-grid.cols3,.fields-grid{grid-template-columns:1fr}.row3{grid-template-columns:1fr auto auto}}
+</style>
+</head>
+<body>
+
+<h1 class="page-title">Calculadora de Cancelamento</h1>
+<p class="page-sub">Preencha os dados e gere o resumo do caso</p>
+
+<div class="wrap">
+  <div class="section active" id="step1">
+    <div class="step-header"><p>Passo 1 de 2</p><h2>Como a cliente pagou?</h2></div>
+    <div class="options-grid cols2">
+      <div class="opt-card" onclick="sel('pagamento','avista',this)"><div class="check"></div><p>À vista</p><span>Pagou o valor total de uma vez</span></div>
+      <div class="opt-card" onclick="sel('pagamento','parcelado',this)"><div class="check"></div><p>Parcelado</p><span>Entrada + parcelas ao longo do contrato</span></div>
+    </div>
+    <div class="step-header"><p>Passo 2 de 2</p><h2>Como o plano é consumido?</h2></div>
+    <div class="options-grid cols3">
+      <div class="opt-card" onclick="sel('consumo','proporcional',this)"><div class="check"></div><p>Proporcional por dias</p><span>Consumo igual ao longo do tempo</span></div>
+      <div class="opt-card" onclick="sel('consumo','soh_entregaveis',this)"><div class="check"></div><p>Só entregáveis</p><span>Sem tempo — itens com preço fixo, abate só o que foi usado</span></div>
+      <div class="opt-card" onclick="sel('consumo','entregaveis_prop',this)"><div class="check"></div><p>Entregáveis + proporcional</p><span>Abate os itens pelo valor fixo, proporcional no saldo restante</span></div>
+    </div>
+    <button class="btn-gerar" onclick="irParaFormulario()">Continuar →</button>
+  </div>
+
+  <div class="section" id="step2">
+    <button class="btn-voltar" onclick="voltar()">← Voltar</button>
+    <div class="tags"><span class="tag pagamento" id="tag-pagamento"></span><span class="tag consumo" id="tag-consumo"></span></div>
+    <div class="fields-grid">
+      <div class="field"><label>Nome da cliente</label><input type="text" id="nome" placeholder="Ex: Maria Silva"></div>
+      <div class="field"><label>Multa contratual (%)</label><input type="number" id="multa" value="20" min="0" max="100"></div>
+    </div>
+    <div id="bloco-tempo" style="display:none">
+      <div class="divider"></div>
+      <p class="bloco-titulo">Período do contrato</p>
+      <div class="fields-grid">
+        <div class="field"><label>Valor total do contrato (R$)</label><input type="number" id="valorTotal" placeholder="Ex: 4700"></div>
+        <div class="field"><label>Duração (meses)</label><input type="number" id="duracao" placeholder="Ex: 3" min="1"></div>
+        <div class="field"><label>Data de início</label><input type="date" id="inicio"></div>
+        <div class="field"><label>Data do cancelamento</label><input type="date" id="cancelamento"></div>
+      </div>
+    </div>
+    <div id="bloco-soh-entregaveis" style="display:none">
+      <div class="divider"></div>
+      <p class="bloco-titulo">Data do cancelamento</p>
+      <div class="fields-grid" style="margin-bottom:0"><div class="field"><label>Data do cancelamento</label><input type="date" id="cancelamento2"></div></div>
+      <div class="divider"></div>
+      <p class="bloco-titulo">Entregáveis do contrato</p>
+      <p style="font-size:12px;color:#aaa;margin-bottom:14px">Marque os que já foram entregues / consumidos</p>
+      <div id="entregaveis-soh-lista"></div>
+      <button class="btn-add" onclick="addEntregavelSoh()">+ Adicionar entregável</button>
+    </div>
+    <div id="bloco-entregaveis-prop" style="display:none">
+      <div class="divider"></div>
+      <p class="bloco-titulo">Entregáveis já consumidos</p>
+      <p style="font-size:12px;color:#aaa;margin-bottom:14px">Adicione apenas os que já foram entregues</p>
+      <div id="entregaveis-prop-lista"></div>
+      <button class="btn-add" onclick="addEntregavelProp()">+ Adicionar entregável consumido</button>
+    </div>
+    <div id="bloco-parcelado" style="display:none">
+      <div class="divider"></div>
+      <p class="bloco-titulo">Plano de pagamento</p>
+      <p style="font-size:12px;color:#aaa;margin-bottom:14px">Adicione todas as parcelas com data e valor</p>
+      <div id="parcelas-lista"></div>
+      <button class="btn-add" onclick="addParcela()">+ Adicionar parcela ou entrada</button>
+    </div>
+    <button class="btn-gerar" onclick="calcular()">Calcular e gerar card</button>
+  </div>
+
+  <div class="section" id="step3">
+    <button class="btn-voltar" onclick="voltarTudo()">← Novo cálculo</button>
+    <div class="result-wrap"><div class="card-wrap" id="card-resultado"></div></div>
+  </div>
+</div>
+
+<script>
+var pagamento=null,consumo=null,pcCount=0,epCount=0,esCount=0;
+function sel(tipo,val,el){
+  if(tipo==='pagamento'){pagamento=val;document.querySelectorAll('.options-grid.cols2 .opt-card').forEach(c=>c.classList.remove('selected'));}
+  else{consumo=val;document.querySelectorAll('.options-grid.cols3 .opt-card').forEach(c=>c.classList.remove('selected'));}
+  el.classList.add('selected');
+}
+function irParaFormulario(){
+  if(!pagamento||!consumo){alert('Selecione uma opção em cada pergunta.');return;}
+  document.getElementById('step1').classList.remove('active');
+  document.getElementById('step2').classList.add('active');
+  var labels={avista:'À vista',parcelado:'Parcelado',proporcional:'Proporcional por dias',soh_entregaveis:'Só entregáveis',entregaveis_prop:'Entregáveis + proporcional'};
+  document.getElementById('tag-pagamento').textContent=labels[pagamento];
+  document.getElementById('tag-consumo').textContent=labels[consumo];
+  document.getElementById('bloco-tempo').style.display=consumo!=='soh_entregaveis'?'block':'none';
+  document.getElementById('bloco-soh-entregaveis').style.display=consumo==='soh_entregaveis'?'block':'none';
+  document.getElementById('bloco-entregaveis-prop').style.display=consumo==='entregaveis_prop'?'block':'none';
+  document.getElementById('bloco-parcelado').style.display=pagamento==='parcelado'?'block':'none';
+  if(consumo==='soh_entregaveis'&&esCount===0)addEntregavelSoh();
+  if(consumo==='entregaveis_prop'&&epCount===0)addEntregavelProp();
+  if(pagamento==='parcelado'&&pcCount===0)addParcela();
+}
+function voltar(){document.getElementById('step2').classList.remove('active');document.getElementById('step1').classList.add('active');}
+function voltarTudo(){
+  document.getElementById('step3').classList.remove('active');
+  document.getElementById('step1').classList.add('active');
+  pagamento=null;consumo=null;pcCount=0;epCount=0;esCount=0;
+  ['parcelas-lista','entregaveis-prop-lista','entregaveis-soh-lista'].forEach(function(id){document.getElementById(id).innerHTML='';});
+  document.querySelectorAll('.opt-card').forEach(c=>c.classList.remove('selected'));
+}
+function addEntregavelSoh(){
+  esCount++;var id='es-'+esCount;var div=document.createElement('div');
+  div.id=id;div.style.cssText='background:#faf9f7;border:1px solid #e8e3dc;border-radius:10px;padding:12px 14px;margin-bottom:10px';
+  div.innerHTML='<div style="display:grid;grid-template-columns:1fr 140px auto;gap:8px;align-items:center;margin-bottom:10px">'+
+    '<div class="field" style="margin:0"><input type="text" id="'+id+'-nome" placeholder="Nome do entregável"></div>'+
+    '<div class="field" style="margin:0"><input type="number" id="'+id+'-val" placeholder="Valor R$"></div>'+
+    '<button class="btn-rm" onclick="document.getElementById(\''+id+'\').remove()">×</button>'+
+    '</div><div class="consumed-toggle"><input type="checkbox" id="'+id+'-usado"><label for="'+id+'-usado">Já foi entregue / consumido</label></div>';
+  document.getElementById('entregaveis-soh-lista').appendChild(div);
+}
+function addEntregavelProp(){
+  epCount++;var id='ep-'+epCount;var div=document.createElement('div');
+  div.className='row3';div.id=id;
+  div.innerHTML='<div class="field" style="margin:0"><input type="text" id="'+id+'-nome" placeholder="Nome do entregável"></div>'+
+    '<div class="field" style="margin:0"><input type="number" id="'+id+'-val" placeholder="Valor R$"></div>'+
+    '<button class="btn-rm" onclick="document.getElementById(\''+id+'\').remove()">×</button>';
+  document.getElementById('entregaveis-prop-lista').appendChild(div);
+}
+function addParcela(){
+  pcCount++;var id='pc-'+pcCount;var div=document.createElement('div');
+  div.className='row3';div.id=id;
+  div.innerHTML='<div class="field" style="margin:0"><input type="date" id="'+id+'-data"></div>'+
+    '<div class="field" style="margin:0"><input type="number" id="'+id+'-val" placeholder="Valor R$"></div>'+
+    '<button class="btn-rm" onclick="document.getElementById(\''+id+'\').remove()">×</button>';
+  document.getElementById('parcelas-lista').appendChild(div);
+}
+function fmt(v){return v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function fmtD(s){if(!s)return'N/D';var p=s.split('-');return p[2]+'/'+p[1]+'/'+p[0];}
+function toD(s){return new Date(s+'T00:00:00');}
+function diffDays(a,b){return Math.round((b-a)/86400000)+1;}
+function addMonths(s,m){var d=toD(s);d.setMonth(d.getMonth()+m);d.setDate(d.getDate()-1);return d;}
+
+function blocoSituacao(totalPago,valorConsumido,multa,saldoRem,isParcelado){
+  var html='<div class="hr"></div><p class="sec-title">Situação financeira</p>';
+  if(isParcelado){
+    var saldo=totalPago-valorConsumido-multa;
+    if(saldo>0.01){
+      html+='<div class="rb dark"><div class="rb-left"><p>A empresa deve devolver à cliente</p><span>Valor pago supera consumo + multa</span></div><div class="rb-right">R$ '+fmt(saldo)+'</div></div>';
+    }else if(saldo<-0.01){
+      html+='<div class="rb dark"><div class="rb-left"><p>A cliente ainda deve à empresa</p><span>Consumo + multa supera o valor pago</span></div><div class="rb-right">R$ '+fmt(Math.abs(saldo))+'</div></div>';
+    }else{
+      html+='<div class="rb amber"><div class="rb-left"><p>Saldo zerado</p><span>Consumo + multa = valor pago. Ninguém deve nada.</span></div><div class="rb-right">R$ 0,00</div></div>';
+    }
+  }else{
+    var creditoLiquido=saldoRem-multa;
+    html+='<div class="rb dark"><div class="rb-left"><p>Se cancelar: empresa deve devolver</p><span>Saldo remanescente menos a multa de 20%</span></div><div class="rb-right">R$ '+fmt(creditoLiquido)+'</div></div>';
+  }
+  return html;
+}
+
+function calcular(){
+  var nome=document.getElementById('nome').value.trim()||'Cliente';
+  var multaPct=parseFloat(document.getElementById('multa').value)||20;
+  consumo==='soh_entregaveis'?calcSoh(nome,multaPct):calcTempo(nome,multaPct);
+}
+
+function calcSoh(nome,multaPct){
+  var cancelamento=document.getElementById('cancelamento2').value;
+  var itens=[],totalContrato=0,totalConsumido=0;
+  document.querySelectorAll('[id^="es-"][id$="-val"]').forEach(function(inp){
+    var base=inp.id.replace('-val','');
+    var nomeEl=document.getElementById(base+'-nome');
+    var usadoEl=document.getElementById(base+'-usado');
+    var val=parseFloat(inp.value)||0;
+    var nomeItem=(nomeEl&&nomeEl.value.trim())?nomeEl.value.trim():'Entregável';
+    var usado=usadoEl?usadoEl.checked:false;
+    if(val>0){totalContrato+=val;if(usado)totalConsumido+=val;itens.push({nome:nomeItem,valor:val,usado:usado});}
+  });
+  if(!itens.length||totalContrato===0){alert('Adicione ao menos um entregável com valor.');return;}
+  var saldoRem=totalContrato-totalConsumido;
+  var multa=saldoRem>0?saldoRem*(multaPct/100):0;
+  var totalPago=totalContrato;
+  var cancelDate=cancelamento?toD(cancelamento):null;
+  if(pagamento==='parcelado'&&cancelDate){
+    totalPago=0;
+    document.querySelectorAll('[id^="pc-"][id$="-val"]').forEach(function(inp){
+      var base=inp.id.replace('-val','');
+      var dataEl=document.getElementById(base+'-data');
+      var val=parseFloat(inp.value)||0;
+      if(dataEl&&dataEl.value&&toD(dataEl.value)<=cancelDate)totalPago+=val;
+    });
+  }
+  var itensHTML=itens.map(function(it){
+    return '<div class="item-row"><span class="item-nome">'+it.nome+'</span>'+
+      '<span class="item-val '+(it.usado?'usado':'disp')+'">'+(it.usado?'− ':'')+'R$ '+fmt(it.valor)+
+      ' <span style="font-size:9px;font-weight:400;opacity:.6">'+(it.usado?'consumido':'disponível')+'</span></span></div>';
+  }).join('');
+  var parceladoCard=pagamento==='parcelado'?'<div class="mini-card blue span2"><p class="mc-label">Total já pago até o cancelamento</p><p class="mc-value">R$ '+fmt(totalPago)+'</p></div>':'';
+  renderCard(nome,fmtD(cancelamento),
+    '<div class="mini-grid">'+
+      '<div class="mini-card"><p class="mc-label">Valor total do contrato</p><p class="mc-value">R$ '+fmt(totalContrato)+'</p></div>'+
+      '<div class="mini-card highlight"><p class="mc-label">Valor já consumido</p><p class="mc-value">R$ '+fmt(totalConsumido)+'</p></div>'+
+      parceladoCard+
+    '</div>'+
+    '<p class="sec-title">Detalhamento dos entregáveis</p>'+
+    '<div class="itens-lista">'+itensHTML+'</div>'+
+    '<div class="hr"></div>'+
+    '<p class="sec-title">Cancelamento — cláusula 5.1</p>'+
+    '<div class="rb red"><div class="rb-left"><p>Multa se cancelar e querer dinheiro de volta</p><span>'+multaPct+'% sobre o saldo de R$ '+fmt(saldoRem)+'</span></div><div class="rb-right">R$ '+fmt(multa)+'</div></div>'+
+    '<div class="rb green"><div class="rb-left"><p>Crédito disponível para usar na empresa</p><span>Saldo cheio — sem desconto de multa</span></div><div class="rb-right">R$ '+fmt(saldoRem)+'</div></div>'+
+    blocoSituacao(totalPago,totalConsumido,multa,saldoRem,pagamento==='parcelado'),
+    'Itens consumidos: '+itens.filter(function(i){return i.usado;}).length+' de '+itens.length+' &nbsp;·&nbsp; Saldo remanescente: R$ '+fmt(saldoRem)
+  );
+}
+
+function calcTempo(nome,multaPct){
+  var valorTotal=parseFloat(document.getElementById('valorTotal').value);
+  var inicio=document.getElementById('inicio').value;
+  var duracao=parseInt(document.getElementById('duracao').value);
+  var cancelamento=document.getElementById('cancelamento').value;
+  if(!valorTotal||!inicio||!duracao||!cancelamento){alert('Preencha todos os campos.');return;}
+  var inicioDate=toD(inicio),cancelDate=toD(cancelamento);
+  var fimDate=addMonths(inicio,duracao);
+  var fimStr=fimDate.toISOString().split('T')[0];
+  var totalDias=diffDays(inicioDate,fimDate);
+  var diasUsados=diffDays(inicioDate,cancelDate);
+  var totalEntregaveis=0,entregaveisItems=[];
+  if(consumo==='entregaveis_prop'){
+    document.querySelectorAll('[id^="ep-"][id$="-val"]').forEach(function(inp){
+      var base=inp.id.replace('-val','');
+      var nomeEl=document.getElementById(base+'-nome');
+      var val=parseFloat(inp.value)||0;
+      var nomeItem=(nomeEl&&nomeEl.value.trim())?nomeEl.value.trim():'Entregável';
+      if(val>0){totalEntregaveis+=val;entregaveisItems.push({nome:nomeItem,valor:val});}
+    });
+  }
+  var baseProportional=valorTotal-totalEntregaveis;
+  var consumoProp=(baseProportional/totalDias)*diasUsados;
+  var valorConsumido=totalEntregaveis+consumoProp;
+  var saldoRem=valorTotal-valorConsumido;
+  var totalPago=valorTotal;
+  if(pagamento==='parcelado'){
+    totalPago=0;
+    document.querySelectorAll('[id^="pc-"][id$="-val"]').forEach(function(inp){
+      var base=inp.id.replace('-val','');
+      var dataEl=document.getElementById(base+'-data');
+      var val=parseFloat(inp.value)||0;
+      if(dataEl&&dataEl.value&&toD(dataEl.value)<=cancelDate)totalPago+=val;
+    });
+  }
+  var multa=saldoRem>0?saldoRem*(multaPct/100):0;
+  var entregaveisHTML='';
+  if(entregaveisItems.length>0){
+    entregaveisHTML='<p class="sec-title">Entregáveis consumidos</p>'+
+      '<div class="itens-lista">'+entregaveisItems.map(function(e){
+        return '<div class="item-row"><span class="item-nome">'+e.nome+'</span><span class="item-val usado">− R$ '+fmt(e.valor)+'</span></div>';
+      }).join('')+'</div>';
+  }
+  var parceladoCard=pagamento==='parcelado'?'<div class="mini-card blue span2"><p class="mc-label">Total já pago até o cancelamento</p><p class="mc-value">R$ '+fmt(totalPago)+'</p></div>':'';
+  renderCard(nome,fmtD(cancelamento),
+    '<div class="mini-grid">'+
+      '<div class="mini-card"><p class="mc-label">Valor total</p><p class="mc-value">R$ '+fmt(valorTotal)+'</p></div>'+
+      '<div class="mini-card"><p class="mc-label">Período</p><p class="mc-value">'+totalDias+' dias</p></div>'+
+      '<div class="mini-card"><p class="mc-label">Dias utilizados</p><p class="mc-value">'+diasUsados+' dias</p></div>'+
+      '<div class="mini-card highlight"><p class="mc-label">Valor consumido</p><p class="mc-value">R$ '+fmt(valorConsumido)+'</p></div>'+
+      parceladoCard+
+    '</div>'+
+    entregaveisHTML+
+    '<div class="hr"></div>'+
+    '<p class="sec-title">Cancelamento antecipado — cláusula 5.1</p>'+
+    '<div class="rb red"><div class="rb-left"><p>Multa se cancelar e querer dinheiro de volta</p><span>'+multaPct+'% sobre o saldo de R$ '+fmt(saldoRem)+'</span></div><div class="rb-right">R$ '+fmt(multa)+'</div></div>'+
+    '<div class="rb green"><div class="rb-left"><p>Crédito disponível para usar na empresa</p><span>Saldo cheio — sem desconto de multa</span></div><div class="rb-right">R$ '+fmt(saldoRem)+'</div></div>'+
+    blocoSituacao(totalPago,valorConsumido,multa,saldoRem,pagamento==='parcelado'),
+    'Saldo remanescente: R$ '+fmt(saldoRem)+' &nbsp;·&nbsp; Vigência: '+fmtD(inicio)+' a '+fmtD(fimStr)
+  );
+}
+
+function renderCard(nome,dataLabel,bodyHTML,footerHTML){
+  document.getElementById('card-resultado').innerHTML=
+    '<div class="card-header">'+
+      '<div class="card-header-left"><p>Simulação de cancelamento</p><h1>Resumo<br>financeiro</h1></div>'+
+      '<div class="card-header-right"><p>Data do pedido</p><span>'+dataLabel+'</span></div>'+
+    '</div>'+
+    '<div class="card-body"><p class="sec-title">Valores do contrato — '+nome+'</p>'+bodyHTML+'</div>'+
+    '<div class="card-footer">'+footerHTML+'</div>';
+  document.getElementById('step2').classList.remove('active');
+  document.getElementById('step3').classList.add('active');
+}
+</script>
+</body>
+</html>
